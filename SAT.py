@@ -21,6 +21,7 @@ print(colored(f"Устройство: {device_name}", 'red'))
 print(colored(f"Время запуска софта: {current_time}", 'cyan'))
 print(colored(f"IP-адрес (если стоит ваш, проверьте ваш прокси): {ip_address}", 'yellow'))
 print(colored(f"Для установки прокси, нужен сам прокси с портом SOCKS5, потом зайдите в Настройки устройства и найдите прокси.", 'blue'))
+print(colored(f"При сноса, можно отменить нажав CTRL + C", 'red'))
 
 def check_data_files():
     try:
