@@ -28,14 +28,16 @@ def check_data_files():
             text = text_file.read().splitlines()
         with open('num.txt', 'r') as num_file:
             numbers = num_file.read().splitlines()
+        with open('users.txt', 'r') as user_file:
+            users = user_file.read().splitlines()
 
-        if not text or not numbers:
+        if not text or not numbers or not users:
             print("НЕТ ДАННЫХ, проверьте указанные вами данные.")
             return False
         return True
 
     except FileNotFoundError:
-        print("Ошибка: файлы были удалены / владелец репозиторий удалил нужные файлы.")
+        print("Ошибка: файлы были удалены / владелец репозитория удалил нужные файлы.")
         return False
 
 
@@ -45,9 +47,7 @@ if not check_data_files():
 url = 'https://telegram.org/support'
 ua = UserAgent()
 
-yukino = 0
-
-def send_complaint(text, contact):
+def send_complaint(text, contact, yukino):
     headers = {
         'User-Agent': ua.random
     }
@@ -65,18 +65,42 @@ def send_complaint(text, contact):
     except requests.exceptions.RequestException as e:
         print(colored(f"Ошибка, проверьте свой интернет либо прокси: {e}", 'red'))
 
-with open('num.txt', 'r') as num_file:
-    contact = num_file.read().splitlines()
+def send_complaints(choice, limit, text, contact, users):
+    yukino = 0
+    try:
+        while yukino < limit:
+            yukino += 1
+            if choice == '1':
+                chosen_text = random.choice(text)
+                chosen_contact = random.choice(contact)
+                print(f"Отправка жалобы на номер телефона №{yukino}...")
+                send_complaint(chosen_text, chosen_contact, yukino)
+            elif choice == '2':
+                chosen_text = random.choice(text)
+                chosen_user = random.choice(users)
+                print(f"Отправка жалобы на пользователя №{yukino}...")
+                send_complaint(chosen_text, chosen_user, yukino)
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("Отменен.")
+        main_menu()
 
-with open('text.txt', 'r') as text_file:
-    text = text_file.read().splitlines()
+def main_menu():
+    while True:
+        choice = input("Выберите вариант сноса \n 1 - по номеру телефона, 2 - по юзер нейму \n: ")
+        if choice not in ['1', '2']:
+            print("неверный выбор")
+        else:
+            limit = 100000
+            with open('num.txt', 'r') as num_file:
+                contact = num_file.read().splitlines()
 
-limit = 100000
+            with open('text.txt', 'r') as text_file:
+                text = text_file.read().splitlines()
 
-while yukino < limit:
-    yukino += 1
-    chosen_text = random.choice(text)
-    chosen_contact = random.choice(contact)
-    print(f"Отправка жалобы №{yukino}...")
-    send_complaint(chosen_text, chosen_contact)
-    time.sleep(1) 
+            with open('users.txt', 'r') as user_file:
+                users = user_file.read().splitlines()
+
+            send_complaints(choice, limit, text, contact, users)
+
+main_menu()
