@@ -40,13 +40,6 @@ def check_data_files():
         print("Ошибка: файлы были удалены / владелец репозитория удалил нужные файлы.")
         return False
 
-def setup_proxy():
-    proxies = {
-        'http': 'http://iran-ebuy.ir.dr-pournasr.com.harounlent.ir.dreshghi.ir.atz.co.ir.ahadpakhsh.com.pegahzanjan.com.epsazar.ir.pranaveg.com.b_ornaapp.com.yasna-law.com.papineh.com.royashahr.com.al_lofweb.ir.negar3d.com.mohromoom.com.farahadaf.ir.iranfujitsu.ir.shab.website:443',
-        'https': 'http://iran-ebuy.ir.dr-pournasr.com.harounlent.ir.dreshghi.ir.atz.co.ir.ahadpakhsh.com.pegahzanjan.com.epsazar.ir.pranaveg.com.b_ornaapp.com.yasna-law.com.papineh.com.royashahr.com.al_lofweb.ir.negar3d.com.mohromoom.com.farahadaf.ir.iranfujitsu.ir.shab.website:443'
-    }
-    return proxies
-
 if not check_data_files():
     exit()
 
@@ -54,7 +47,6 @@ url = 'https://telegram.org/support'
 ua = UserAgent()
 
 def send_complaint(text, contact, yukino):
-    proxies = setup_proxy()
     headers = {
         'User-Agent': ua.random
     }
@@ -64,7 +56,7 @@ def send_complaint(text, contact, yukino):
     }
 
     try:
-        response = requests.post(url, data=payload, headers=headers, proxies=proxies, timeout=5)
+        response = requests.post(url, data=payload, headers=headers, timeout=5)
         if response.status_code == 200:
             print(f"\33[92mОтправлено жалоба\n Кол-во (лимит 100000)", yukino, "УЖЕ ОТПРАВЛЕНО\33[0m")
         else:
