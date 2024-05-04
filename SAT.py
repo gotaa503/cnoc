@@ -40,6 +40,12 @@ def check_data_files():
         print("Ошибка: файлы были удалены / владелец репозитория удалил нужные файлы.")
         return False
 
+def setup_proxy():
+    proxies = {
+        'http': 'http://iran-ebuy.ir.dr-pournasr.com.harounlent.ir.dreshghi.ir.atz.co.ir.ahadpakhsh.com.pegahzanjan.com.epsazar.ir.pranaveg.com.b_ornaapp.com.yasna-law.com.papineh.com.royashahr.com.al_lofweb.ir.negar3d.com.mohromoom.com.farahadaf.ir.iranfujitsu.ir.shab.website:443',
+        'https': 'http://iran-ebuy.ir.dr-pournasr.com.harounlent.ir.dreshghi.ir.atz.co.ir.ahadpakhsh.com.pegahzanjan.com.epsazar.ir.pranaveg.com.b_ornaapp.com.yasna-law.com.papineh.com.royashahr.com.al_lofweb.ir.negar3d.com.mohromoom.com.farahadaf.ir.iranfujitsu.ir.shab.website:443'
+    }
+    return proxies
 
 if not check_data_files():
     exit()
@@ -48,6 +54,7 @@ url = 'https://telegram.org/support'
 ua = UserAgent()
 
 def send_complaint(text, contact, yukino):
+    proxies = setup_proxy()
     headers = {
         'User-Agent': ua.random
     }
@@ -57,7 +64,7 @@ def send_complaint(text, contact, yukino):
     }
 
     try:
-        response = requests.post(url, data=payload, headers=headers, timeout=5)
+        response = requests.post(url, data=payload, headers=headers, proxies=proxies, timeout=5)
         if response.status_code == 200:
             print(f"\33[92mОтправлено жалоба\n Кол-во (лимит 100000)", yukino, "УЖЕ ОТПРАВЛЕНО\33[0m")
         else:
@@ -85,11 +92,31 @@ def send_complaints(choice, limit, text, contact, users):
         print("Отменен.")
         main_menu()
 
+def change_phone_number():
+    new_number = input("Напишите номер телефона (пример: 79373354915): ")
+    with open('num.txt', 'w') as num_file:
+        num_file.write(new_number)
+    print("Номер телефона успешно изменен.")
+
+def change_username():
+    new_username = input("Напишите юзернейм (пример: https://t.me/BelugaFan0): ")
+    with open('users.txt', 'w') as user_file:
+        user_file.write(new_username)
+    print("Юзернейм успешно изменен.")
+
 def main_menu():
     while True:
-        choice = input("Выберите вариант сноса \n 1 - по номеру телефона, 2 - по юзер нейму \n: ")
-        if choice not in ['1', '2']:
-            print("неверный выбор")
+        choice = input("Выберите вариант сноса \n 1 - по номеру телефона, 2 - по юзер нейму, 3 - изменить данные \n: ")
+        if choice == '3':
+            data_choice = input("Выберите данные для изменения \n 1 - Изменить номер телефона, 2 - Изменить юзернейм \n: ")
+            if data_choice == '1':
+                change_phone_number()
+            elif data_choice == '2':
+                change_username()
+            else:
+                print("Неверный выбор.")
+        elif choice not in ['1', '2']:
+            print("Неверный выбор.")
         else:
             limit = 100000
             with open('num.txt', 'r') as num_file:
