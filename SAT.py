@@ -22,7 +22,7 @@ print(colored(f"Время запуска софта: {current_time}", 'cyan'))
 print(colored(f"IP-адрес (если стоит ваш, проверьте ваш прокси): {ip_address}", 'yellow'))
 print(colored(f"Для установки прокси, нужен сам прокси с портом SOCKS5, потом зайдите в Настройки устройства и найдите прокси.", 'blue'))
 print(colored(f"При сноса, можно отменить нажав CTRL + C", 'red'))
-print(colored(f"Версия софта: pre-alpha v.0.4", 'red'))
+print(colored(f"Версия софта: pre-alpha v.0.3", 'red'))
 print(colored(f"!!РЕКОМЕНДУЕТСЯ МЕНЯТЬ ПРОКСИ ПОСТОЯННО, ЧТОБЫ РЕАЛЬНО СНОСИТЬ АККАУНТ ЖЕРТВЫ!!", 'red'))
 
 def check_data_files():
@@ -49,15 +49,30 @@ def setup_proxy():
         'http': f'http://{proxy_input}',
         'https': f'http://{proxy_input}'
     }
+    with open('proxy.txt', 'w') as proxy_file:
+        proxy_file.write(proxy_input)
     return proxies
+
+def load_saved_proxy():
+    try:
+        with open('proxy.txt', 'r') as proxy_file:
+            proxy_input = proxy_file.read().strip()
+        proxies = {
+            'http': f'http://{proxy_input}',
+            'https': f'http://{proxy_input}'
+        }
+        return proxies
+    except FileNotFoundError:
+        return None
 
 if not check_data_files():
     exit()
 
 url = 'https://telegram.org/support'
 ua = UserAgent()
+proxies = load_saved_proxy()
 
-def send_complaint(text, contact, yukino, proxies):
+def send_complaint(text, contact, yukino):
     headers = {
         'User-Agent': ua.random
     }
@@ -75,7 +90,7 @@ def send_complaint(text, contact, yukino, proxies):
     except requests.exceptions.RequestException as e:
         print(colored(f"Ошибка, проверьте свой интернет либо прокси: {e}", 'red'))
 
-def send_complaints(choice, limit, text, contact, users, proxies):
+def send_complaints(choice, limit, text, contact, users):
     yukino = 0
     try:
         while yukino < limit:
@@ -84,12 +99,12 @@ def send_complaints(choice, limit, text, contact, users, proxies):
                 chosen_text = random.choice(text)
                 chosen_contact = random.choice(contact)
                 print(f"Отправка жалобы на номер телефона №{yukino}...")
-                send_complaint(chosen_text, chosen_contact, yukino, proxies)
+                send_complaint(chosen_text, chosen_contact, yukino)
             elif choice == '2':
                 chosen_text = random.choice(text)
                 chosen_user = random.choice(users)
                 print(f"Отправка жалобы на пользователя №{yukino}...")
-                send_complaint(chosen_text, chosen_user, yukino, proxies)
+                send_complaint(chosen_text, chosen_user, yukino)
             time.sleep(1)
     except KeyboardInterrupt:
         print("Отменен.")
@@ -114,7 +129,7 @@ def change_proxy():
 def main_menu():
     global proxies
     while True:
-        choice = input("Выберите вариант сноса \n 1 - по номеру телефона, 2 - по юзер нейму, 3 - изменить данные, 4 - изменить прокси\n: ")
+        choice = input("Выберите вариант сноса \n 1 - по номеру телефона, 2 - по юзер нейму, 3 - изменить данные, 4 - сменить прокси\n: ")
         if choice == '3':
             data_choice = input("Выберите данные для изменения \n 1 - Изменить номер телефона, 2 - Изменить юзернейм \n: ")
             if data_choice == '1':
@@ -138,6 +153,6 @@ def main_menu():
             with open('users.txt', 'r') as user_file:
                 users = user_file.read().splitlines()
 
-            send_complaints(choice, limit, text, contact, users, proxies)
+            send_complaints(choice, limit, text, contact, users)
 
 main_menu()
